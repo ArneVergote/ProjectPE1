@@ -1,0 +1,24 @@
+name: Deploy to Server
+
+# Gebeurtenissen die de workflow activeren
+on:
+  push:
+    branches:
+      - main  # Of een andere branch waar je de code naar wilt deployen
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Het besturingssysteem waarop de job draait
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Checkout de repository
+
+      - name: Setup SSH key for deployment
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Deploy to server via SSH
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no user@your-server-ip 'bash -s' < ./deploy.sh
