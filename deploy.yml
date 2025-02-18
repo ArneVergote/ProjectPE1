@@ -21,4 +21,4 @@ jobs:
 
       - name: Deploy to server via SSH
         run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no user@your-server-ip 'bash -s' < ./deploy.sh
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@130.162.242.76 'bash -s' < ./deploy.sh
