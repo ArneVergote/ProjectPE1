@@ -1,24 +1,32 @@
-name: Deploy to Server
+name: Deploy Application to Server
 
-# Gebeurtenissen die de workflow activeren
 on:
   push:
     branches:
-      - main  # Of een andere branch waar je de code naar wilt deployen
+      - main  # Pas dit aan naar de branch die je wilt deployen (bijv. 'master')
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Het besturingssysteem waarop de job draait
-    
+    runs-on: ubuntu-latest  # Specificeer het platform voor de job
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2  # Checkout de repository
+      # Checkout de repository code
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Setup SSH key for deployment
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
+      # Voeg SSH privé sleutel toe via GitHub secrets
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy to server via SSH
+      # Voer de deploy uit via SSH
+      - name: Deploy to server
         run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@130.162.242.76 'bash -s' < ./deploy.sh
+          ssh -o StrictHostKeyChecking=no ubuntu@130.162.242.76 << 'EOF'
+            # Voeg hier je deploy commando's toe, bijvoorbeeld:
+            cd /path/to/your/application
+            git pull origin main  # Verondersteld dat je code via Git komt
+            # Voeg hier andere deploytaken toe, zoals het restart van een service:
+            sudo systemctl restart your-app-service
+          EOF
